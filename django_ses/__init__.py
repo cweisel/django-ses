@@ -19,8 +19,13 @@ class SESBackend(BaseEmailBackend):
         self._access_key_id = getattr(settings, 'AWS_ACCESS_KEY_ID', None)
         self._access_key = getattr(settings, 'AWS_SECRET_ACCESS_KEY', None)
 
-        default_host = getattr(SESConnection, 'DefaultRegionEndpoint', 
-                               SESConnection.DefaultHost)
+        if hasattr(SESConnection, 'DefaultRegionEndpoint'):
+            default_host = SESConnection.DefaultRegionEndpoint
+        elif hasattr(SESConnection, 'DefaultHost'):
+            default_host = SESConnection.DefaultHost
+        else:
+            raise KeyError('SESConnection has changed, it has neither ' +
+                           'DefaultRegionEndpoint or DefaultHost defined.')
 
         self._api_endpoint = getattr(settings, 'AWS_SES_API_HOST',
                                      default_host)
