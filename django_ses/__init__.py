@@ -18,8 +18,12 @@ class SESBackend(BaseEmailBackend):
 
         self._access_key_id = getattr(settings, 'AWS_ACCESS_KEY_ID', None)
         self._access_key = getattr(settings, 'AWS_SECRET_ACCESS_KEY', None)
+
+        default_host = getattr(SESConnection, 'DefaultRegionEndpoint', 
+                               SESConnection.DefaultHost)
+
         self._api_endpoint = getattr(settings, 'AWS_SES_API_HOST',
-                                     SESConnection.DefaultHost)
+                                     default_host)
 
         self.connection = None
 
