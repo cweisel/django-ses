@@ -1,7 +1,8 @@
 from django.core.mail.backends.base import BaseEmailBackend
 from django.conf import settings
 
-from boto.ses import SESConnection
+from boto import connect_ses
+from boto.regioninfo import RegionInfo
 
 
 __version__ = '0.1'
@@ -19,16 +20,12 @@ class SESBackend(BaseEmailBackend):
         self._access_key_id = getattr(settings, 'AWS_ACCESS_KEY_ID', None)
         self._access_key = getattr(settings, 'AWS_SECRET_ACCESS_KEY', None)
 
-        if hasattr(SESConnection, 'DefaultRegionEndpoint'):
-            default_host = SESConnection.DefaultRegionEndpoint
-        elif hasattr(SESConnection, 'DefaultHost'):
-            default_host = SESConnection.DefaultHost
-        else:
-            raise KeyError('boto SESConnection has changed, it has neither ' +
-                           'DefaultRegionEndpoint or DefaultHost defined.')
+        self._region_info = getattr(settings, 'AWS_SES_REGION_INFO', None)
 
-        self._api_endpoint = getattr(settings, 'AWS_SES_API_HOST',
-                                     default_host)
+        self._ses_connection_kwargs = {}
+
+        if self._region_info:
+            self._ses_connection_kwargs['region'] = self._region_info
 
         self.connection = None
 
@@ -40,10 +37,10 @@ class SESBackend(BaseEmailBackend):
             return False
 
         try:
-            self.connection = SESConnection(
+            self.connection = connect_ses(
                 aws_access_key_id=self._access_key_id,
                 aws_secret_access_key=self._access_key,
-                host=self._api_endpoint,
+                **kwargs
             )
         except:
             if not self.fail_silently:
