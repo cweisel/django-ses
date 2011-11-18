@@ -24,7 +24,7 @@ class SESBackend(BaseEmailBackend):
         elif hasattr(SESConnection, 'DefaultHost'):
             default_host = SESConnection.DefaultHost
         else:
-            raise KeyError('SESConnection has changed, it has neither ' +
+            raise KeyError('boto SESConnection has changed, it has neither ' +
                            'DefaultRegionEndpoint or DefaultHost defined.')
 
         self._api_endpoint = getattr(settings, 'AWS_SES_API_HOST',
