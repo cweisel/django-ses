@@ -4,6 +4,8 @@ from django.conf import settings
 from boto import connect_ses
 from boto.regioninfo import RegionInfo
 
+from boto.ses import SESConnection # for exceptions
+
 
 __version__ = '0.1'
 __author__ = 'Harry Marr'
